@@ -25,12 +25,37 @@ def cadastrar_livro():
     ano = int(input("Digite o ano de lançamento do livro: "))
     cursor.execute("""INSERT INTO biblioteca.db (titulo, autor, ano, disponivel)
                    VALUES (?, ?, ?, ?)
-                   """, (titulo, autor, ano, "Sim"))
+                   """, (titulo, autor, ano, "sim",))
     conexao.commit()
+    print("Livro cadastrado com sucesso!")
 #função para consultar livros
 def consultar_livros():
     cursor.execute("SELECT * FROM livros")
     #fetchall traz todas as linhas da consulta
     for linha in cursor.fetchall():
         print(f"ID {linha[0]} | TITULO: {linha[1]} | AUTOR: {linha[2]} | ANO: {linha[3]} | DISPONIVEL: {linha[4]}")
+    conexao.commit()
+def alterar_disponibilidade():
+    consultar_livros()
+    id = int(input("Digite qual ID você deseja alterar a disponibilidade: "))
+    cursor.execute("SELECT disponivel FROM livros WHERE id = ?", (id,))
+    resultado = cursor.fetchone()
+    if resultado is None:
+        print("ID não encontrado.")
+        return
+    if resultado[4] == "sim":
+        cursor.execute("""
+            UPDATE livros
+            SET disponivel = ?
+            WHERE id = ?
+        """, ("não", id))
+    else:
+        cursor.execute("""
+            UPDATE livros
+            SET disponivel = ?
+            WHERE id = ?
+        """, ("sim", id))
+    conexao.commit()
+    print("Disponibilidade alterada")
+    
 
