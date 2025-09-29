@@ -57,5 +57,27 @@ def alterar_disponibilidade():
         """, ("sim", id))
     conexao.commit()
     print("Disponibilidade alterada")
-    
+
+
+def remover_livros():
+    try:
+        conexao = sqlite3.connect("biblioteca.db")
+        cursor = conexao.cursor()
+       
+        id_livro = int(input("Digite o id do livro que deseja deletar: "))
+        cursor.execute("DELETE FROM livros WHERE id = ?", (id_livro,))
+        conexao.commit()
+       
+        #Verificar se o livro foi realmente deletado
+        if cursor.rowcount > 0:
+            print("livro removido com sucesso!")
+        else:
+            print("Nenhum livro cadastrado com o ID fornecido")
+    except Exception as erro:
+        print(f"Erro ao tentar excluir o aluno {erro}")
+    finally:
+        #Sempre fecha a conexão, com sucesso ou erro
+        if conexao:
+            conexao.close()
+
 
