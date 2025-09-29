@@ -20,44 +20,53 @@ CREATE TABLE IF NOT EXISTS livros (
 print("Tabela criada com sucesso!")
 #função para cadastrar livros
 def cadastrar_livro():
-    titulo = input("Digite o titulo do livro: ")
-    autor = input("Digte o autor do livro: ")
-    ano = int(input("Digite o ano de lançamento do livro: "))
-    cursor.execute("""INSERT INTO biblioteca.db (titulo, autor, ano, disponivel)
-                   VALUES (?, ?, ?, ?)
-                   """, (titulo, autor, ano, "sim",))
-    conexao.commit()
-    print("Livro cadastrado com sucesso!")
+    try:
+        titulo = input("Digite o titulo do livro: ")
+        autor = input("Digte o autor do livro: ")
+        ano = int(input("Digite o ano de lançamento do livro: "))
+        cursor.execute("""INSERT INTO livros (titulo, autor, ano, disponivel)
+                    VALUES (?, ?, ?, ?)
+                    """, (titulo, autor, ano, "sim",))
+        conexao.commit()
+        print("Livro cadastrado com sucesso!")
+    except Exception as erro:
+        print(f"Não foi possivel cadastrar o livro, Erro: {erro}")
 #função para consultar livros
 def consultar_livros():
     cursor.execute("SELECT * FROM livros")
     #fetchall traz todas as linhas da consulta
-    for linha in cursor.fetchall():
-        print(f"ID {linha[0]} | TITULO: {linha[1]} | AUTOR: {linha[2]} | ANO: {linha[3]} | DISPONIVEL: {linha[4]}")
-    conexao.commit()
+    livros = cursor.fetchall()
+    if len(livros) > 0:
+        for linha in livros:
+            print(f"ID {linha[0]} | TITULO: {linha[1]} | AUTOR: {linha[2]} | ANO: {linha[3]} | DISPONIVEL: {linha[4]}")
+        conexao.commit()
+    else:
+        print("Nenhum livro cadastrado!")
 def alterar_disponibilidade():
     consultar_livros()
-    id = int(input("Digite qual ID você deseja alterar a disponibilidade: "))
-    cursor.execute("SELECT disponivel FROM livros WHERE id = ?", (id,))
-    resultado = cursor.fetchone()
-    if resultado is None:
-        print("ID não encontrado.")
-        return
-    if resultado[4] == "sim":
-        cursor.execute("""
-            UPDATE livros
-            SET disponivel = ?
-            WHERE id = ?
-        """, ("não", id))
-    else:
-        cursor.execute("""
-            UPDATE livros
-            SET disponivel = ?
-            WHERE id = ?
-        """, ("sim", id))
-    conexao.commit()
-    print("Disponibilidade alterada")
-
+    try:
+        id = int(input("Digite qual ID você deseja alterar a disponibilidade: "))
+        cursor.execute("SELECT disponivel FROM livros WHERE id = ?", (id,))
+        resultado = cursor.fetchone()
+        if resultado is None:
+            print("ID não encontrado.")
+            return
+        if resultado[0] == "sim":
+            cursor.execute("""
+                UPDATE livros
+                SET disponivel = ?
+                WHERE id = ?
+            """, ("não", id))
+        else:
+            cursor.execute("""
+                UPDATE livros
+                SET disponivel = ?
+                WHERE id = ?
+            """, ("sim", id))
+        conexao.commit()
+        print("Disponibilidade alterada")
+    except Exception as erro:
+        print(f"Erro ao alterar a disponibilidade, Erro: {erro}")
 
 def remover_livros():
     try:
@@ -81,7 +90,7 @@ def remover_livros():
             conexao.close()
 
 def menu():
-    while True
+    while True:
         print("-----------MENU------------\n1-Consultar Livros\n2-Cadastrar Livros\n3-Excluir Livro\n4-Alterar Disponibilidade\n5-Sair ")
         opcao = int(input("Digite a opção desejada: "))
         if opcao == 1:
