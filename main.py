@@ -80,4 +80,20 @@ def remover_livros():
         if conexao:
             conexao.close()
 
-
+def menu():
+    while True
+        print("-----------MENU------------\n1-Consultar Livros\n2-Cadastrar Livros\n3-Excluir Livro\n4-Alterar Disponibilidade\n5-Sair ")
+        opcao = int(input("Digite a opção desejada: "))
+        if opcao == 1:
+            consultar_livros()
+        elif opcao == 2:
+            cadastrar_livro()
+        elif opcao == 3:
+            remover_livros()
+        elif opcao == 4:
+            alterar_disponibilidade()
+        elif opcao == 5: 
+            print("Obrigado por usar o programa, saindo...")
+            break
+        else:
+            print("Opção inválida!")
