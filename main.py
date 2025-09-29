@@ -14,8 +14,17 @@ CREATE TABLE IF NOT EXISTS alunos (
     titulo TEXT NOT NULL,
     autor TEXT NOT NULL,
     ano INTEGER,
-    disponivel TEXT(sim, não)
+    disponivel TEXT
     )
 """)
 print("Tabela criada com sucesso!")
+
+def cadastrar_livro():
+    titulo = input("Digite o titulo do livro: ")
+    autor = input("Digte o autor do livro: ")
+    ano = int(input("Digite o ano de lançamento do livro: "))
+    cursor.execute("""INSERT INTO biblioteca.db (titulo, autor, ano, disponivel)
+                   VALUES (?, ?, ?, ?)
+                   """, (titulo, autor, ano, "Sim"))
+
 
