@@ -1,6 +1,6 @@
 #importar a biblioteca sqlite3
 import sqlite3
-
+import streamlit as st
 #Cria uma conexão com o banco de dados chamado "biblioteca.db"
 conexao = sqlite3.connect("biblioteca.db")
 
@@ -17,20 +17,27 @@ CREATE TABLE IF NOT EXISTS livros (
     disponivel TEXT
     )
 """)
-print("Tabela criada com sucesso!")
+st.success("Tabela criada com sucesso!")
 #função para cadastrar livros
 def cadastrar_livro():
     try:
-        titulo = input("Digite o titulo do livro: ")
-        autor = input("Digte o autor do livro: ")
-        ano = int(input("Digite o ano de lançamento do livro: "))
-        cursor.execute("""INSERT INTO livros (titulo, autor, ano, disponivel)
-                    VALUES (?, ?, ?, ?)
-                    """, (titulo, autor, ano, "sim",))
-        conexao.commit()
-        print("Livro cadastrado com sucesso!")
+        titulo = st.text_input("Digite o titulo do livro: ")
+        autor = st.text_input("Digte o autor do livro: ")
+        ano = st.text_input("Digite o ano de lançamento do livro: ")
+        if st.button("Cadastrar"):
+            if ano.isdigit():
+                cursor.execute("""INSERT INTO livros (titulo, autor, ano, disponivel)
+                            VALUES (?, ?, ?, ?)
+                            """, (titulo, autor, ano, "sim",))
+                conexao.commit()
+                st.success("Livro cadastrado com sucesso!")
+            else:
+                st.error("Digite uma data válida")
     except Exception as erro:
-        print(f"Não foi possivel cadastrar o livro, Erro: {erro}")
+        st.error(f"Não foi possivel cadastrar o livro, Erro: {erro}")
+    finally:
+        if conexao:
+            conexao.close()
 #função para consultar livros
 def consultar_livros():
     cursor.execute("SELECT * FROM livros")
@@ -38,18 +45,28 @@ def consultar_livros():
     livros = cursor.fetchall()
     if len(livros) > 0:
         for linha in livros:
-            print(f"ID {linha[0]} | TITULO: {linha[1]} | AUTOR: {linha[2]} | ANO: {linha[3]} | DISPONIVEL: {linha[4]}")
-        conexao.commit()
+            st.write(f"ID {linha[0]} | TITULO: {linha[1]} | AUTOR: {linha[2]} | ANO: {linha[3]} | DISPONIVEL: {linha[4]}")
+            #Pegar os id's existentes:
+            global todos_id
+            todos_id = []
+            todos_id.append(linha[0])
     else:
-        print("Nenhum livro cadastrado!")
+        st.warning("Nenhum livro cadastrado!")
+    conexao.commit()
+    if conexao:
+            conexao.close()
 def alterar_disponibilidade():
     consultar_livros()
     try:
-        id = int(input("Digite qual ID você deseja alterar a disponibilidade: "))
+        id_livro = st.selectbox("Selecione o id do livro que deseja alterar a disponibilidade: ", todos_id)
+        if id_livro.isdigit():
+            int(id_livro)
+        else:
+            st.error("Selecione um id valido")
         cursor.execute("SELECT disponivel FROM livros WHERE id = ?", (id,))
         resultado = cursor.fetchone()
         if resultado is None:
-            print("ID não encontrado.")
+            st.error("ID não encontrado.")
             return
         if resultado[0] == "sim":
             cursor.execute("""
@@ -64,24 +81,32 @@ def alterar_disponibilidade():
                 WHERE id = ?
             """, ("sim", id))
         conexao.commit()
-        print("Disponibilidade alterada")
+        st.success("Disponibilidade alterada")
     except Exception as erro:
-        print(f"Erro ao alterar a disponibilidade, Erro: {erro}")
+        st.error(f"Erro ao alterar a disponibilidade, Erro: {erro}")
+    finally:
+        #Sempre fecha a conexão, com sucesso ou erro
+        if conexao:
+            conexao.close()
 
 def remover_livros():
     try:
         conexao = sqlite3.connect("biblioteca.db")
         cursor = conexao.cursor()
        
-        id_livro = int(input("Digite o id do livro que deseja deletar: "))
+        id_livro = st.selectbox("Digite o id do livro que deseja deletar: ", todos_id)
+        if id_livro.isdigit():
+            int(id_livro)
+        else:
+            st.error("Digite um id valido")
         cursor.execute("DELETE FROM livros WHERE id = ?", (id_livro,))
         conexao.commit()
        
         #Verificar se o livro foi realmente deletado
         if cursor.rowcount > 0:
-            print("livro removido com sucesso!")
+            st.success("livro removido com sucesso!")
         else:
-            print("Nenhum livro cadastrado com o ID fornecido")
+            st.warning("Nenhum livro cadastrado com o ID fornecido")
     except Exception as erro:
         print(f"Erro ao tentar excluir o aluno {erro}")
     finally:
@@ -90,19 +115,9 @@ def remover_livros():
             conexao.close()
 
 def menu():
-    while True:
-        print("-----------MENU------------\n1-Consultar Livros\n2-Cadastrar Livros\n3-Excluir Livro\n4-Alterar Disponibilidade\n5-Sair ")
-        opcao = int(input("Digite a opção desejada: "))
-        if opcao == 1:
-            consultar_livros()
-        elif opcao == 2:
-            cadastrar_livro()
-        elif opcao == 3:
-            remover_livros()
-        elif opcao == 4:
-            alterar_disponibilidade()
-        elif opcao == 5: 
-            print("Obrigado por usar o programa, saindo...")
-            break
-        else:
-            print("Opção inválida!")
+    st.sidebar.write("Menu")
+    opcao = st.sidebar.radio("Escolha uma opção",["Todos Livros", "Cadastrar Livros", "Alterar disponibilidade", "Excluir Livro"])
+    if opcao == "Todos Livros":
+        consultar_livros()
+    if opcao == "Cadastrar Livros":
+        cadastrar_livro()
