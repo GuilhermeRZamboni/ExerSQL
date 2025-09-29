@@ -37,7 +37,6 @@ def resetar_rolagem():
 
 pokemons_rolados = []
 
-
 def roletar_pokemons():
 
     poke_id = random.randint(1, 1010)
@@ -50,6 +49,7 @@ def roletar_pokemons():
             "img": dados["sprites"]["front_default"]
         }
 
+
 def buscar_pokemon(nome):
     url = f"https://pokeapi.co/api/v2/pokemon/{nome.lower()}"
     resposta = requests.get(url)
@@ -61,23 +61,22 @@ def buscar_pokemon(nome):
             "tipos": [t["type"]["name"].capitalize() for t in dados["types"]],
             "altura": dados["height"],
             "peso": dados["weight"],
-            "img": dados["sprites"]["front_default"]
+            "img": dados["sprites"]["front_default"],
+            "movimentos": [m["move"]["name"].replace("-", " ").capitalize() for m in dados["moves"][:5]]  # Pega os 5 primeiros
         }
         st.image(info["img"], width=120)
         st.write(f"- **Nome:** {info['nome']}")
         st.write(f"- **ID:** {info['id']}")
         st.write(f"- **Tipo:** {', '.join(info['tipos'])}")
-        st.write(f"- **Altura:** {info['altura']}")
-        st.write(f"- **Peso:** {info['peso']}")
+
         return info
     else:
         st.error("Pokémon não encontrado.")
         return None
 
-st.title("Bem-vindo a sua Pokédex")
-st.write(f"💰 Moedas: {st.session_state.moedas}$")
+st.title("Bem-vindo ao seu Programa de Pokemon")
+st.write(f"💰 Moedas: ${st.session_state.moedas}")
 
-# Botão de resetar o game
 if st.button("🔄 Resetar Jogo"):
     for key in [
         "pokemons_capturados",
@@ -87,14 +86,12 @@ if st.button("🔄 Resetar Jogo"):
         "moedas",
         "rolagem_restante",
         "ultimo_reset",
-        "pokemon_rolado"
-    ]:
+        "pokemon_rolado"]:
         if key in st.session_state:
             del st.session_state[key]
     st.success("Jogo resetado! Recarregue a página para começar do zero.")
     st.rerun()
 aba1, aba2, aba3 = st.tabs(["Roletar & Capturar", "Pokédex", "PC/Shop"])
-
 
 with aba1:
     resetar_rolagem()
@@ -112,14 +109,12 @@ with aba1:
             segundos = tempo_restante % 60
             st.error(f"Espere {minutos}m {segundos}s para roletar novamente.")
 
-
-
     if st.session_state.pokemon_rolado:
         poke = st.session_state.pokemon_rolado
         st.subheader("Pokémon Sorteado")
         col1, col2 = st.columns([1, 4])
         with col1:
-            st.image(poke["img"], width=80)
+            st.image(poke["img"], width=280)
         with col2:
             st.write(f"**{poke['name']}**")
             if st.button(f"Capturar {poke['name']}", key=f"capturar_{poke['name']}"):
@@ -128,6 +123,7 @@ with aba1:
                     chance = random.randint(1, 10)
                     pegar = random.randint(1, 10)
                     if pegar <= chance:
+                        time.sleep(1)
                         info = buscar_pokemon(poke["name"])
                         if info:
                             st.session_state.pokemons_capturados[poke["name"]] = info
@@ -136,6 +132,7 @@ with aba1:
                             st.success(f"Você capturou {poke['name']}! (+{moedas_ganhas} moedas)")
                             st.session_state.pokemon_rolado = None  # Limpa o Pokémon sorteado
                     else:
+                        time.sleep(1)
                         st.warning("O Pokémon escapou!")
                         st.session_state.pokemon_rolado = None
                 else:
@@ -161,7 +158,6 @@ with aba1:
                     del st.session_state.pokemons_capturados[nome]
                     st.success(f"Você vendeu {nome} por {moedas_venda} moedas!")
 
-
 with aba2:
     st.subheader("Pokédex")
     st.info("Veja detalhes dos seus pokémons capturados ou no PC")
@@ -176,9 +172,9 @@ with aba2:
         st.write(f"- **Tipo:** {', '.join(info['tipos'])}")
         st.write(f"- **Altura:** {info['altura']}")
         st.write(f"- **Peso:** {info['peso']}")
+        st.write(f"- **Movimentos:** {', '.join(info['movimentos'])}")
     else:
-        st.warning("Você ainda não capturou nenhum Pokémon.")
-
+        st.warning("Você ainda não capturou nenhum Pokémon")
 
 with aba3:
     st.subheader("Seu PC")
