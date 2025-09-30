@@ -1,114 +1,106 @@
-📚 Biblioteca com Streamlit + SQLite
+# 📚 Biblioteca - Streamlit + SQLite
 
-Este projeto é uma aplicação simples de gerenciamento de livros utilizando Streamlit
- como interface web e SQLite como banco de dados local.
+Este repositório contém uma aplicação simples para **gerenciamento de livros** utilizando **Streamlit** como interface web e **SQLite** como banco de dados local.
 
-🚀 Funcionalidades
+---
 
-📄 Listar todos os livros cadastrados
+## 🚀 Funcionalidades
 
-➕ Cadastrar novos livros
+- Listar todos os livros cadastrados
+- Cadastrar novos livros
+- Alterar a disponibilidade de um livro (sim / não)
+- Excluir livros do banco de dados
 
-🔄 Alterar a disponibilidade de um livro
+---
 
-❌ Excluir livros do banco de dados
+## 🛠️ Tecnologias utilizadas
 
-🛠️ Tecnologias utilizadas
+- Python 3
+- Streamlit
+- SQLite3
 
-Python 3
+---
 
-Streamlit
+## 📦 Requisitos
 
-SQLite3
+- Python 3.7 ou superior
+- Instalar dependências:
 
-📦 Requisitos
+```bash
+pip install -r requirements.txt
+```
 
-Python 3.7+
+---
 
-Streamlit instalado:
+## ▶️ Como executar
 
-pip install -r
-
-▶️ Como executar
-
-Clone o repositório:
-
+1. Clone o repositório (ou extraia os arquivos enviados):
+```bash
 git clone https://github.com/GuilhermeRZamboni/ExerSQL.git
 cd ExerSQL
+```
 
+2. Instale as dependências:
+```bash
+pip install -r requirements.txt
+```
 
-Execute o app com Streamlit:
-
+3. Execute o app Streamlit:
+```bash
 streamlit run app.py
+```
 
+> Observação: certifique-se de que o arquivo `biblioteca.db` está presente na pasta do projeto. Se não existir, crie o banco ou execute o script que cria a tabela `livros`.
 
-Certifique-se de que o arquivo biblioteca.db exista com a tabela livros. Se necessário, crie manualmente ou adicione um script de criação.
+---
 
-🗃️ Estrutura do banco de dados
+## 🗃️ Estrutura do banco de dados (tabela `livros`)
 
-A tabela livros deve conter os seguintes campos:
-
-CREATE TABLE livros (
+```sql
+CREATE TABLE IF NOT EXISTS livros (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     titulo TEXT NOT NULL,
     autor TEXT NOT NULL,
     ano INTEGER NOT NULL,
     disponivel TEXT DEFAULT 'sim'
 );
+```
 
-📂 Funcionalidades do código
-cadastrar_livro()
+---
 
-Permite o cadastro de um novo livro com título, autor e ano de lançamento.
+## 📂 Arquivos principais
 
-consultar_livros()
+- `main.py` — Lógica do aplicativo (funções para cadastrar, consultar, alterar disponibilidade e remover livros).
+- `app.py` — Inicializa o banco (caso necessário) e chama o menu da aplicação.
+- `biblioteca.db` — Banco SQLite usado pela aplicação.
+- `requirements.txt` — Dependências do projeto.
 
-Exibe uma tabela com todos os livros cadastrados e seus status de disponibilidade.
+---
 
-alterar_disponibilidade()
+## ✅ Boas práticas e dicas
 
-Permite alternar o status de disponibilidade de um livro (sim ↔ não).
+- Faça backup do arquivo `biblioteca.db` antes de testar operações que removam dados.
+- Para adicionar novos campos (categoria, descrição), atualize o esquema do banco e as funções de CRUD no `main.py`.
+- Considere adicionar validação mais robusta para entradas do usuário (por exemplo: ano entre 1000 e o ano atual).
 
-remover_livros()
+---
 
-Permite excluir permanentemente um livro do banco de dados.
+## 🐛 Possíveis melhorias
 
-obter_ids()
+- Paginação e busca por título/autor
+- Filtro por disponibilidade
+- Testes automatizados (unitários)
+- Exportar/Importar dados (CSV/Excel)
+- Interface visual mais elaborada com componentes customizados
 
-Auxiliar para retornar todos os IDs existentes na tabela de livros.
+---
 
-menu()
+## 📄 Licença
 
-Controla a navegação entre as funcionalidades no menu lateral do Streamlit.
+Este projeto está licenciado sob a **Licença MIT**. Veja o arquivo `LICENSE` para o texto completo em português.
 
-✅ Exemplo visual
+---
 
-📌 Interface simples usando a barra lateral para navegar entre ações:
+## 🙋‍♂️ Autor
 
-Exemplo de cadastro de livro com validações
-
-Exibição de livros com coloração condicional para disponibilidade
-
-Atualização automática da base ao realizar ações
-
-🐛 Possíveis melhorias
-
-Adicionar campo de categoria/descrição para os livros
-
-Melhorar o tratamento de erros
-
-Adicionar paginação ou busca por título
-
-Criar testes unitários
-
-Exportar dados para CSV/Excel
-
-📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE
- para mais detalhes.
-
-🙋‍♂️ Autor
-
-Feito com 💻 por Guilherme Zamboni
- — contribuições são bem-vindas!
+Feito com 💻 por **Guilherme Zamboni** — contribuições são bem-vindas!
