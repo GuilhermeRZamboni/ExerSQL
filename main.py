@@ -3,11 +3,11 @@ import streamlit as st
 
 # Função auxiliar para pegar todos os IDs
 def obter_ids():
-    conexao = sqlite3.connect("biblioteca.db")
+    conexao = sqlite3.connect ("biblioteca.db")
     cursor = conexao.cursor()
     cursor.execute("SELECT id FROM livros")
     ids = [linha[0] for linha in cursor.fetchall()]
-    conexao.close()
+    
     return ids
 
 # Função para cadastrar livros
@@ -18,18 +18,25 @@ def cadastrar_livro():
         ano = st.text_input("Digite o ano de lançamento do livro: ")
 
         if st.button("Cadastrar"):
-            if ano.isdigit():
-                conexao = sqlite3.connect("biblioteca.db")
-                cursor = conexao.cursor()
-                cursor.execute("""
-                    INSERT INTO livros (titulo, autor, ano, disponivel)
-                    VALUES (?, ?, ?, ?)
-                """, (titulo, autor, ano, "sim"))
-                conexao.commit()
-                conexao.close()
-                st.success("Livro cadastrado com sucesso!")
+            if titulo:
+                if autor:
+                    if ano.isdigit():
+                        int(ano)
+                        conexao = sqlite3.connect("biblioteca.db")
+                        cursor = conexao.cursor()
+                        cursor.execute("""
+                            INSERT INTO livros (titulo, autor, ano, disponivel)
+                            VALUES (?, ?, ?, ?)
+                        """, (titulo, autor, ano, "sim"))
+                        conexao.commit()
+                        
+                        st.success("Livro cadastrado com sucesso!")
+                    else:
+                        st.error("Digite um ano válido")
+                else:
+                    st.error("Primeiro digite um autor")   
             else:
-                st.error("Digite um ano válido")
+                st.error("Primeiro digite um titulo")
     except Exception as erro:
         st.error(f"Não foi possível cadastrar o livro. Erro: {erro}")
 
@@ -39,11 +46,15 @@ def consultar_livros():
     cursor = conexao.cursor()
     cursor.execute("SELECT * FROM livros")
     livros = cursor.fetchall()
-    conexao.close()
 
     if len(livros) > 0:
-        for linha in livros:
-            st.write(f"ID {linha[0]} | TÍTULO: {linha[1]} | AUTOR: {linha[2]} | ANO: {linha[3]} | DISPONÍVEL: {linha[4]}")
+        tabela_livros = {
+            "Id" : [linha[0] for linha in livros],
+            "Titulo" : [linha[1] for linha in livros],
+            "Autor ": [linha[2] for linha in livros],
+            "Ano" : [linha[3] for linha in livros],
+            "Disponivel" : [":green[Sim]" if linha [4] == "sim" else ":red[Não]" for linha in livros ]}
+        st.table(tabela_livros, border = "horizontal")
     else:
         st.warning("Nenhum livro cadastrado!")
 
@@ -57,8 +68,9 @@ def alterar_disponibilidade():
     id_livro = st.selectbox("Selecione o ID do livro:", ids)
 
     if st.button("Alterar disponibilidade"):
-        conexao = sqlite3.connect("biblioteca.db")
-        cursor = conexao.cursor()
+        with sqlite3.connect('biblioteca.db') as conexao:
+            cursor = conexao.cursor()
+            conexao.commit()
         cursor.execute("SELECT disponivel FROM livros WHERE id = ?", (id_livro,))
         resultado = cursor.fetchone()
 
@@ -69,7 +81,7 @@ def alterar_disponibilidade():
             st.success(f"Disponibilidade alterada para {novo_status}!")
         else:
             st.error("ID não encontrado.")
-        conexao.close()
+        
 
 # Função para remover livros
 def remover_livros():
@@ -85,7 +97,7 @@ def remover_livros():
         cursor = conexao.cursor()
         cursor.execute("DELETE FROM livros WHERE id = ?", (id_livro,))
         conexao.commit()
-        conexao.close()
+        
         st.success("Livro removido com sucesso!")
 
 # Menu principal
